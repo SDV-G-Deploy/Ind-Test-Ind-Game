@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Runner MVP</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #11131a;
+        --panel: #1a1f2b;
+        --accent: #76d4ff;
+      }
+
+      * { box-sizing: border-box; }
+
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: radial-gradient(circle at top, #1a2236, var(--bg));
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      }
+
+      .app {
+        min-height: 100%;
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        gap: 8px;
+        padding: 8px;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .topbar,
+      .controls {
+        background: color-mix(in srgb, var(--panel) 88%, black);
+        border: 1px solid #2a3550;
+        border-radius: 10px;
+        padding: 8px;
+        color: #d8e2f6;
+        font-size: 14px;
+      }
+
+      .canvas-wrap {
+        background: #0f1320;
+        border: 1px solid #2a3550;
+        border-radius: 10px;
+        overflow: hidden;
+      }
+
+      canvas {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 9 / 16;
+        display: block;
+        touch-action: none;
+      }
+
+      .controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .touch-btn {
+        border: 1px solid #335089;
+        border-radius: 8px;
+        background: linear-gradient(180deg, #2b4378, #23345a);
+        color: #dce8ff;
+        font: inherit;
+        padding: 12px;
+      }
+
+      .touch-btn:active { transform: translateY(1px); }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <div class="topbar">Runner MVP · Tap right half to jump / left half to slam</div>
+      <div class="canvas-wrap">
+        <canvas id="gameCanvas" width="360" height="640" aria-label="runner game canvas"></canvas>
+      </div>
+      <div class="controls">
+        <button class="touch-btn" data-action="slam">SLAM</button>
+        <button class="touch-btn" data-action="jump">JUMP</button>
+      </div>
+    </div>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
