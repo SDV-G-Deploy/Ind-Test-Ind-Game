@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "sprites": {
+    "player": "./assets/sprites/player.png",
+    "obstacle": "./assets/sprites/obstacle.png",
+    "crystal": "./assets/sprites/crystal.png",
+    "heart": "./assets/sprites/heart.png",
+    "groundTile": "./assets/sprites/ground-tile.png"
+  }
+}

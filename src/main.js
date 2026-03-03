@@ -1,6 +1,7 @@
 import { createLoop } from './engine/loop.js';
 import { createInput } from './engine/input.js';
 import { createRenderer } from './engine/renderer.js';
+import { loadAssets } from './engine/assets.js';
 import { createPlayer, updatePlayer } from './game/player.js';
 import { createWorld, updateWorld } from './game/world.js';
 import { createSpawner } from './game/spawner.js';
@@ -85,6 +86,7 @@ function resetRun(state, config) {
 
 async function boot() {
   const config = await loadBalance();
+  const assets = await loadAssets();
   const canvas = document.getElementById('gameCanvas');
   const buttons = Array.from(document.querySelectorAll('.touch-btn'));
 
@@ -92,9 +94,9 @@ async function boot() {
   const world = createWorld(config, canvas);
   const player = createPlayer(config, world.groundY);
   const spawner = createSpawner(config);
-  const renderer = createRenderer({ canvas, config });
+  const renderer = createRenderer({ canvas, config, assets });
   const hud = createHud();
-  const state = { config, input, world, player, spawner, renderer, hud };
+  const state = { config, assets, input, world, player, spawner, renderer, hud };
 
   spawner.seedInitial(world);
 
