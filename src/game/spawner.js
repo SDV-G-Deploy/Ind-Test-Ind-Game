@@ -1,5 +1,5 @@
-function randomBetween(min, max) {
-  return min + Math.random() * (max - min);
+function randomBetween(randomFn, min, max) {
+  return min + randomFn() * (max - min);
 }
 
 function makeGround(world, x, width) {
@@ -14,8 +14,12 @@ function makeGround(world, x, width) {
 
 export function createSpawner(config) {
   const s = config.spawner;
+  let randomFn = Math.random;
 
   return {
+    setRandomProvider(nextRandomFn) {
+      randomFn = typeof nextRandomFn === 'function' ? nextRandomFn : Math.random;
+    },
     seedInitial(world) {
       for (let i = 0; i < s.segmentLead; i += 1) {
         this.spawnNextSegment(world, config);
@@ -25,11 +29,11 @@ export function createSpawner(config) {
     spawnNextSegment(world, cfg) {
       const length = cfg.world.segmentLength;
       const segX = world.nextSegmentX;
-      const roll = Math.random();
+      const roll = randomFn();
 
       if (roll < s.gapChance) {
         // gap segment: no ground, maybe reward for risky jump
-        if (Math.random() < s.crystalChance) {
+        if (randomFn() < s.crystalChance) {
           world.entities.push({
             kind: 'crystal',
             x: segX + length * 0.5,
@@ -40,7 +44,7 @@ export function createSpawner(config) {
         }
       } else if (roll < s.gapChance + s.obstacleChance) {
         makeGround(world, segX, length);
-        const obstacleH = randomBetween(s.obstacleMinHeight, s.obstacleMaxHeight);
+        const obstacleH = randomBetween(randomFn, s.obstacleMinHeight, s.obstacleMaxHeight);
         world.entities.push({
           kind: 'obstacle',
           x: segX + length * 0.45,
@@ -52,17 +56,17 @@ export function createSpawner(config) {
         makeGround(world, segX, length);
       }
 
-      if (Math.random() < s.crystalChance) {
+      if (randomFn() < s.crystalChance) {
         world.entities.push({
           kind: 'crystal',
           x: segX + length * 0.72,
-          y: world.groundY - randomBetween(120, 210),
+          y: world.groundY - randomBetween(randomFn, 120, 210),
           width: 20,
           height: 20
         });
       }
 
-      if (Math.random() < s.heartChance) {
+      if (randomFn() < s.heartChance) {
         world.entities.push({
           kind: 'heart',
           x: segX + length * 0.25,

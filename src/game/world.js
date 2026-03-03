@@ -14,7 +14,8 @@ export function createWorld(config, canvas) {
     distance: 0,
     canvasHeight: canvas.height,
     gameOver: false,
-    bestDistance: Number(localStorage.getItem('runner.bestDistance') || 0)
+    bestDistance: Number(localStorage.getItem('runner.bestDistance') || 0),
+    lastCollisionEvent: 'none'
   };
 }
 
@@ -30,6 +31,13 @@ export function updateWorld(world, player, spawner, config, dt) {
     spawner.spawnNextSegment(world, config);
   }
 
+  const playerWorldBounds = {
+    x: player.x + world.cameraX,
+    y: player.y,
+    width: player.width,
+    height: player.height
+  };
+
   for (let i = world.entities.length - 1; i >= 0; i -= 1) {
     const e = world.entities[i];
 
@@ -40,9 +48,10 @@ export function updateWorld(world, player, spawner, config, dt) {
 
     if (e.kind === 'ground') continue;
 
-    if (intersectsAABB(player, e)) {
+    if (intersectsAABB(playerWorldBounds, e)) {
       if (e.kind === 'obstacle') {
         const dead = applyHitToPlayer(player, config);
+        world.lastCollisionEvent = dead ? 'obstacle-hit-death' : 'obstacle-hit';
         if (player.isSlamming) {
           world.entities.splice(i, 1);
         }
@@ -55,11 +64,13 @@ export function updateWorld(world, player, spawner, config, dt) {
 
       if (e.kind === 'crystal') {
         player.crystals += 1;
+        world.lastCollisionEvent = 'crystal-pickup';
         world.entities.splice(i, 1);
       }
 
       if (e.kind === 'heart') {
         player.hp = Math.min(player.maxHP, player.hp + 1);
+        world.lastCollisionEvent = 'heart-pickup';
         world.entities.splice(i, 1);
       }
     }
