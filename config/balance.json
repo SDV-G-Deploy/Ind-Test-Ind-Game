@@ -1,0 +1,46 @@
+{
+  "world": {
+    "gravity": 2500,
+    "baseSpeed": 220,
+    "speedRampPerSecond": 2.5,
+    "maxSpeed": 360,
+    "groundY": 560,
+    "distanceScale": 0.01,
+    "segmentLength": 180,
+    "tileWidth": 36
+  },
+  "player": {
+    "x": 96,
+    "width": 42,
+    "height": 56,
+    "jumpVelocity": -760,
+    "doubleJumpVelocity": -700,
+    "maxJumps": 2,
+    "slamVelocity": 1200,
+    "armorMax": 100,
+    "armorRegenPerSecond": 18,
+    "armorHitCost": 35,
+    "fatigueMax": 100,
+    "fatigueJumpCost": 28,
+    "fatigueRecoverPerSecond": 16,
+    "maxHP": 3,
+    "invulnSeconds": 0.8
+  },
+  "spawner": {
+    "segmentLead": 14,
+    "gapChance": 0.2,
+    "obstacleChance": 0.35,
+    "crystalChance": 0.55,
+    "heartChance": 0.08,
+    "obstacleMinHeight": 45,
+    "obstacleMaxHeight": 90
+  },
+  "render": {
+    "bgColor": "#101629",
+    "groundColor": "#284021",
+    "playerColor": "#5ec3ff",
+    "obstacleColor": "#8d4c45",
+    "crystalColor": "#82e9ff",
+    "heartColor": "#ff678f"
+  }
+}

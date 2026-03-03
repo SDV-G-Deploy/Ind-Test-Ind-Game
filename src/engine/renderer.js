@@ -1,0 +1,79 @@
+function syncCanvasToDisplay(canvas, ctx) {
+  const dpr = Math.max(1, window.devicePixelRatio || 1);
+  const rect = canvas.getBoundingClientRect();
+  const width = Math.floor(rect.width * dpr);
+  const height = Math.floor(rect.height * dpr);
+
+  if (canvas.width !== width || canvas.height !== height) {
+    canvas.width = width;
+    canvas.height = height;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  return {
+    cssWidth: rect.width,
+    cssHeight: rect.height
+  };
+}
+
+export function createRenderer({ canvas, config }) {
+  const ctx = canvas.getContext('2d');
+
+  return {
+    draw(state) {
+      const metrics = syncCanvasToDisplay(canvas, ctx);
+      const world = state.world;
+      const player = state.player;
+      world.canvasHeight = metrics.cssHeight;
+
+      ctx.fillStyle = config.render.bgColor;
+      ctx.fillRect(0, 0, metrics.cssWidth, metrics.cssHeight);
+
+      ctx.fillStyle = config.render.groundColor;
+      ctx.fillRect(0, world.groundY, metrics.cssWidth, metrics.cssHeight - world.groundY);
+
+      for (const e of world.entities) {
+        const drawX = e.x - world.cameraX;
+        if (drawX + e.width < 0 || drawX > metrics.cssWidth) continue;
+
+        switch (e.kind) {
+          case 'obstacle':
+            ctx.fillStyle = config.render.obstacleColor;
+            ctx.fillRect(drawX, e.y, e.width, e.height);
+            break;
+          case 'crystal':
+            ctx.fillStyle = config.render.crystalColor;
+            ctx.beginPath();
+            ctx.moveTo(drawX + e.width * 0.5, e.y);
+            ctx.lineTo(drawX + e.width, e.y + e.height * 0.5);
+            ctx.lineTo(drawX + e.width * 0.5, e.y + e.height);
+            ctx.lineTo(drawX, e.y + e.height * 0.5);
+            ctx.closePath();
+            ctx.fill();
+            break;
+          case 'heart':
+            ctx.fillStyle = config.render.heartColor;
+            ctx.beginPath();
+            ctx.arc(drawX + 6, e.y + 7, 6, 0, Math.PI * 2);
+            ctx.arc(drawX + 14, e.y + 7, 6, 0, Math.PI * 2);
+            ctx.lineTo(drawX + 10, e.y + 22);
+            ctx.closePath();
+            ctx.fill();
+            break;
+          default:
+            break;
+        }
+      }
+
+      if (!(player.invulnTime > 0 && Math.floor(player.invulnTime * 16) % 2 === 0)) {
+        ctx.fillStyle = config.render.playerColor;
+        ctx.fillRect(player.x, player.y, player.width, player.height);
+      }
+
+      if (world.gameOver) {
+        ctx.fillStyle = 'rgba(0,0,0,0.55)';
+        ctx.fillRect(0, 0, metrics.cssWidth, metrics.cssHeight);
+      }
+    }
+  };
+}
