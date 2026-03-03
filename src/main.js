@@ -5,6 +5,9 @@ import { createPlayer, updatePlayer } from './game/player.js';
 import { createWorld, updateWorld } from './game/world.js';
 import { createSpawner } from './game/spawner.js';
 import { createHud } from './ui/hud.js';
+import { createTutorialPrompts } from './retention/tutorial.js';
+import { createDailyRunMode } from './retention/dailyRun.js';
+import { createDailyMissions } from './retention/dailyMissions.js';
 
 const DEFAULTS = {
   world: {
@@ -80,13 +83,19 @@ function resetRun(state, config) {
   const freshPlayer = createPlayer(config, state.world.groundY);
   Object.assign(state.player, freshPlayer);
 
+  state.spawner.setRandomProvider(state.dailyRun.createRngForCurrentMode());
   state.spawner.seedInitial(state.world);
+
+  state.dailyMissions.onRunStart();
+  state.runMetrics.lastDistance = state.world.distance;
+  state.runMetrics.lastCrystals = state.player.crystals;
 }
 
 async function boot() {
   const config = await loadBalance();
   const canvas = document.getElementById('gameCanvas');
   const buttons = Array.from(document.querySelectorAll('.touch-btn'));
+  const modeToggle = document.getElementById('modeToggle');
 
   const input = createInput({ canvas, buttons });
   const world = createWorld(config, canvas);
@@ -94,9 +103,27 @@ async function boot() {
   const spawner = createSpawner(config);
   const renderer = createRenderer({ canvas, config });
   const hud = createHud();
-  const state = { config, input, world, player, spawner, renderer, hud };
+  const tutorial = createTutorialPrompts();
+  const dailyRun = createDailyRunMode();
+  const dailyMissions = createDailyMissions({ getDateKey: () => dailyRun.getDateKey() });
+  const runMetrics = { lastDistance: world.distance, lastCrystals: player.crystals };
+  const state = { config, input, world, player, spawner, renderer, hud, tutorial, dailyRun, dailyMissions, runMetrics };
 
+  spawner.setRandomProvider(dailyRun.createRngForCurrentMode());
   spawner.seedInitial(world);
+  dailyMissions.onRunStart();
+
+  const updateModeButton = () => {
+    const mode = dailyRun.getMode();
+    modeToggle.textContent = mode === 'daily' ? `Mode: Daily (${dailyRun.getDateKey()})` : 'Mode: Normal';
+  };
+  updateModeButton();
+
+  modeToggle.addEventListener('click', () => {
+    dailyRun.toggleMode();
+    updateModeButton();
+    resetRun(state, config);
+  });
 
   let loopMs = 0;
   let loop;
@@ -113,7 +140,14 @@ async function boot() {
         if (input.consume('jump')) resetRun(state, config);
       } else {
         updatePlayer(player, world, input, config, dt);
+        tutorial.update(player);
         updateWorld(world, player, spawner, config, dt);
+
+        const distanceDelta = Math.max(0, world.distance - runMetrics.lastDistance);
+        const crystalsDelta = Math.max(0, player.crystals - runMetrics.lastCrystals);
+        dailyMissions.updateProgress({ distanceDelta, crystalsDelta });
+        runMetrics.lastDistance = world.distance;
+        runMetrics.lastCrystals = player.crystals;
       }
 
       // Simple runtime assertions for MVP sanity.
@@ -124,7 +158,15 @@ async function boot() {
     },
     render() {
       renderer.draw(state);
-      hud.render({ player, world, loopMs });
+      hud.render({
+        player,
+        world,
+        loopMs,
+        promptText: tutorial.getPrompt(),
+        mode: dailyRun.getMode(),
+        dailyDate: dailyRun.getDateKey(),
+        dailyMissions: dailyMissions.getSnapshot()
+      });
     }
   });
 
