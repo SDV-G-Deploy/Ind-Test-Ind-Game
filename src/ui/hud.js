@@ -7,6 +7,7 @@ export function createHud() {
         ? ` · GAME OVER ${Math.floor(world.distance)}m · best ${world.bestDistance}`
         : '';
       const tutorialText = promptText ? ` · ${promptText}` : '';
+<<<<<<< codex/implement-milestone-m1-features-sequentially-91zo02
       const modeText = mode === 'daily' ? ` · Daily ${dailyDate}` : ' · Normal';
 
       const missionText = dailyMissions
@@ -21,6 +22,18 @@ export function createHud() {
       )} · Crystals ${player.crystals} · Distance ${Math.floor(world.distance)} · ${Math.round(
         loopMs
       )}ms${modeText}${missionText}${gameOverText}${tutorialText}`;
+=======
+      const modeText = mode === 'daily' ? ` · Daily ${dailyDate}` : ' · Normal mode';
+
+      const missionText = dailyMissions
+        ? ` · Bank ${dailyMissions.bankedCrystals} · Missions ${dailyMissions.missions
+            .map((mission) => `${mission.label} (${Math.floor(mission.progress)}/${mission.target})`)
+            .join(' | ')}`
+        : '';
+      panel.textContent = `HP ${player.hp}/${player.maxHP} · Armor ${Math.floor(player.armor)} · Fatigue ${Math.floor(
+        player.fatigue
+      )} · Crystals ${player.crystals} · Distance ${Math.floor(world.distance)} · ${Math.round(loopMs)}ms${modeText}${missionText}${gameOverText}${tutorialText}`;
+>>>>>>> main
     }
   };
 }

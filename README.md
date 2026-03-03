@@ -107,6 +107,14 @@ to verify** checklist in the PR description
 
 ------------------------------------------------------------------------
 
+
+## Development execution
+- Strategic roadmap: `PLAN.md`
+- Step-by-step Codex delivery plan: `EXECUTION_PLAN.md`
+- Contribution/PR process: `CONTRIBUTING.md`
+
+------------------------------------------------------------------------
+
 ## Roadmap
 
 -   **M0** --- Freeze baseline (docs + templates)
