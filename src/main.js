@@ -107,6 +107,7 @@ function countEntities(entities) {
 
 async function boot() {
   const config = await loadBalance();
+  const assets = await loadAssets();
   const canvas = document.getElementById('gameCanvas');
   const buttons = Array.from(document.querySelectorAll('.touch-btn'));
   const modeToggle = document.getElementById('modeToggle');
@@ -119,7 +120,7 @@ async function boot() {
   const world = createWorld(config, canvas);
   const player = createPlayer(config, world.groundY);
   const spawner = createSpawner(config);
-  const renderer = createRenderer({ canvas, config });
+  const renderer = createRenderer({ canvas, config, assets });
   const hud = createHud();
   const debugOverlay = createDebugOverlay(isDebugMode);
   const tutorial = createTutorialPrompts();
