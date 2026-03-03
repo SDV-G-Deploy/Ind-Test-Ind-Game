@@ -1,47 +1,71 @@
 const STORAGE_KEY = 'runner.tutorial.v1';
 
-function loadShownPrompts() {
+function loadProgress() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { jump: false, doubleJump: false, slam: false };
+    if (!raw) return { stage: 0, completed: false };
     const parsed = JSON.parse(raw);
     return {
-      jump: Boolean(parsed.jump),
-      doubleJump: Boolean(parsed.doubleJump),
-      slam: Boolean(parsed.slam)
+      stage: Math.max(0, Math.min(3, Number(parsed.stage || 0))),
+      completed: Boolean(parsed.completed)
     };
   } catch {
-    return { jump: false, doubleJump: false, slam: false };
+    return { stage: 0, completed: false };
   }
 }
 
-function persistShownPrompts(shown) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(shown));
+function persistProgress(progress) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
 }
 
+const PROMPTS = [
+  'Tutorial: Jump to clear gaps and low obstacles.',
+  'Tutorial: Tap jump again in air for a double jump.',
+  'Tutorial: Slam mid-air to break through obstacles.'
+];
+
 export function createTutorialPrompts() {
-  const shown = loadShownPrompts();
+  const progress = loadProgress();
   let activePrompt = '';
 
-  function showPrompt(key, text) {
-    if (shown[key]) return;
-    shown[key] = true;
-    activePrompt = text;
-    persistShownPrompts(shown);
+  function advance() {
+    progress.stage = Math.min(3, progress.stage + 1);
+    if (progress.stage >= 3) {
+      progress.completed = true;
+      activePrompt = '';
+    }
+    persistProgress(progress);
   }
 
   return {
     update(player) {
-      if (!shown.jump && player.onGround) {
-        showPrompt('jump', 'Tutorial: Jump to clear gaps and low obstacles.');
-      } else if (!shown.doubleJump && !player.onGround && player.jumpsLeft === 1) {
-        showPrompt('doubleJump', 'Tutorial: Tap jump again in air for a double jump.');
-      } else if (!shown.slam && !player.onGround && player.jumpsLeft <= 1) {
-        showPrompt('slam', 'Tutorial: Slam mid-air to break through obstacles.');
+      if (progress.completed) {
+        activePrompt = '';
+        return;
+      }
+
+      if (progress.stage === 0) {
+        activePrompt = PROMPTS[0];
+        if (!player.onGround) advance();
+        return;
+      }
+
+      if (progress.stage === 1) {
+        activePrompt = PROMPTS[1];
+        if (!player.onGround && player.jumpsLeft === 0) advance();
+        return;
+      }
+
+      if (progress.stage === 2) {
+        activePrompt = PROMPTS[2];
+        if (player.isSlamming) advance();
       }
     },
     getPrompt() {
       return activePrompt;
+    },
+    getState() {
+      return { stage: progress.stage, completed: progress.completed };
     }
   };
 }

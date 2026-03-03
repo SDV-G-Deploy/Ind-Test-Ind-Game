@@ -26,8 +26,8 @@
         min-height: 100%;
         display: grid;
         grid-template-rows: auto 1fr auto;
-        gap: 8px;
-        padding: 8px;
+        gap: clamp(6px, 1.2vh, 10px);
+        padding: 8px 8px calc(8px + env(safe-area-inset-bottom, 0px));
         max-width: 800px;
         margin: 0 auto;
       }
@@ -47,6 +47,13 @@
         align-items: center;
         justify-content: space-between;
         gap: 10px;
+      }
+
+      #hudText {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       .mode-toggle {
@@ -78,6 +85,7 @@
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 8px;
+        align-items: stretch;
       }
 
       .touch-btn {
@@ -86,10 +94,40 @@
         background: linear-gradient(180deg, #2b4378, #23345a);
         color: #dce8ff;
         font: inherit;
-        padding: 12px;
+        font-size: clamp(14px, 2.2vh, 18px);
+        min-height: clamp(44px, 8vh, 64px);
+        padding: clamp(10px, 1.8vh, 14px);
       }
 
       .touch-btn:active { transform: translateY(1px); }
+
+      .touch-btn:disabled {
+        opacity: 0.45;
+        filter: grayscale(0.35);
+      }
+
+      .slam-hint {
+        grid-column: 1 / -1;
+        font-size: 12px;
+        color: #9fb4dc;
+      }
+
+      #debugOverlay {
+        position: fixed;
+        top: calc(8px + env(safe-area-inset-top, 0px));
+        left: 8px;
+        z-index: 20;
+        max-width: min(92vw, 420px);
+        margin: 0;
+        padding: 8px;
+        background: rgba(4, 10, 20, 0.88);
+        border: 1px solid #355079;
+        border-radius: 8px;
+        color: #9ce6ff;
+        font: 12px/1.35 ui-monospace, SFMono-Regular, Menlo, monospace;
+        pointer-events: none;
+        white-space: pre-wrap;
+      }
     </style>
   </head>
   <body>
@@ -99,8 +137,9 @@
         <canvas id="gameCanvas" width="360" height="640" aria-label="runner game canvas"></canvas>
       </div>
       <div class="controls">
-        <button class="touch-btn" data-action="slam">SLAM</button>
+        <button id="slamButton" class="touch-btn" data-action="slam">SLAM</button>
         <button class="touch-btn" data-action="jump">JUMP</button>
+        <div id="slamHint" class="slam-hint">Slam only in air</div>
       </div>
     </div>
 

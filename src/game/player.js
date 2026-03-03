@@ -23,6 +23,18 @@ export function createPlayer(config, groundY) {
   };
 }
 
+export function getSlamAvailability(player) {
+  if (player.onGround) {
+    return { available: false, reason: 'Slam only in air' };
+  }
+
+  if (player.armor < player.armorMax) {
+    return { available: false, reason: 'Need full armor' };
+  }
+
+  return { available: true, reason: '' };
+}
+
 export function updatePlayer(player, world, input, config, dt) {
   const p = config.player;
 
@@ -46,9 +58,12 @@ export function updatePlayer(player, world, input, config, dt) {
     }
   }
 
-  if (input.consume('slam') && !player.onGround) {
-    player.vy = p.slamVelocity;
-    player.isSlamming = true;
+  if (input.consume('slam')) {
+    const slamState = getSlamAvailability(player);
+    if (slamState.available) {
+      player.vy = p.slamVelocity;
+      player.isSlamming = true;
+    }
   }
 
   player.vy += world.gravity * dt;
