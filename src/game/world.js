@@ -112,6 +112,15 @@ export function updateWorld(world, player, spawner, config, dt) {
     return;
   }
 
+  const fallMargin = Math.max(40, Number(config.world.fallDeathMargin || 120));
+  if (player.y > world.canvasHeight + fallMargin) {
+    world.gameOver = true;
+    world.gameWon = false;
+    world.lastCollisionEvent = 'fall-death';
+    commitRecords(world, player);
+    return;
+  }
+
   while (world.nextSegmentX < world.cameraX + config.world.segmentLength * config.spawner.segmentLead) {
     spawner.spawnNextSegment(world, config);
   }

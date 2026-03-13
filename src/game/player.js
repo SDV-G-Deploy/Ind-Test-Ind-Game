@@ -22,7 +22,9 @@ export function createPlayer(config, groundY) {
     crystalStreakTimer: 0,
     streakBonuses: 0,
     isSlamming: false,
-    invulnTime: 0
+    invulnTime: 0,
+    jumpBufferTime: 0,
+    coyoteTime: Number(p.coyoteSeconds || 0)
   };
 }
 
@@ -38,8 +40,34 @@ export function getSlamAvailability(player) {
   return { available: true, reason: '' };
 }
 
+function tryQueuedJump(player, config) {
+  if (player.jumpBufferTime <= 0) return;
+
+  const p = config.player;
+  const fatigueBudget = player.fatigue + p.fatigueJumpCost <= player.fatigueMax;
+  if (!fatigueBudget) return;
+
+  const hasAirJump = player.jumpsLeft > 0;
+  const hasGroundPrivilege = player.onGround || player.coyoteTime > 0;
+
+  if (!hasAirJump) return;
+
+  const treatAsGroundJump = hasGroundPrivilege && player.jumpsLeft === player.maxJumps;
+  const jumpIndex = treatAsGroundJump ? 0 : player.maxJumps - player.jumpsLeft;
+
+  player.vy = jumpIndex > 0 ? p.doubleJumpVelocity : p.jumpVelocity;
+  player.jumpsLeft -= 1;
+  player.onGround = false;
+  player.coyoteTime = 0;
+  player.jumpBufferTime = 0;
+  player.fatigue += p.fatigueJumpCost;
+  player.isSlamming = false;
+}
+
 export function updatePlayer(player, world, input, config, dt) {
   const p = config.player;
+  const jumpBufferSeconds = Math.max(0, Number(p.jumpBufferSeconds || 0));
+  const coyoteSeconds = Math.max(0, Number(p.coyoteSeconds || 0));
 
   if (player.invulnTime > 0) {
     player.invulnTime = Math.max(0, player.invulnTime - dt);
@@ -52,21 +80,22 @@ export function updatePlayer(player, world, input, config, dt) {
     }
   }
 
+  if (player.onGround) {
+    player.coyoteTime = coyoteSeconds;
+  } else {
+    player.coyoteTime = Math.max(0, player.coyoteTime - dt);
+  }
+
+  player.jumpBufferTime = Math.max(0, player.jumpBufferTime - dt);
+
   player.armor = Math.min(player.armorMax, player.armor + p.armorRegenPerSecond * dt);
   player.fatigue = Math.max(0, player.fatigue - p.fatigueRecoverPerSecond * dt);
 
   if (input.consume('jump')) {
-    const canJump = player.jumpsLeft > 0;
-    const fatigueBudget = player.fatigue + p.fatigueJumpCost <= player.fatigueMax;
-    if (canJump && fatigueBudget) {
-      const jumpIndex = player.maxJumps - player.jumpsLeft;
-      player.vy = jumpIndex > 0 ? p.doubleJumpVelocity : p.jumpVelocity;
-      player.jumpsLeft -= 1;
-      player.onGround = false;
-      player.fatigue += p.fatigueJumpCost;
-      player.isSlamming = false;
-    }
+    player.jumpBufferTime = jumpBufferSeconds;
   }
+
+  tryQueuedJump(player, config);
 
   if (input.consume('slam')) {
     const slamState = getSlamAvailability(player);
@@ -79,7 +108,7 @@ export function updatePlayer(player, world, input, config, dt) {
   player.vy += world.gravity * dt;
   player.y += player.vy * dt;
 
-  resolveGroundCollision(player, world.groundY);
+  resolveGroundCollision(player, world);
 }
 
 export function applyHitToPlayer(player, config) {

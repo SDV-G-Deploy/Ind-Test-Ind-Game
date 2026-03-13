@@ -1,47 +1,32 @@
 # Improvement plan (research → priorities)
 
-## Objectives for this iteration
-- Improve readability/fairness of hazards on mobile.
-- Make difficulty ramp smoother and less spiky.
-- Add a short in-run reward loop to encourage replay.
-- Clarify onboarding without breaking existing game loop.
+## Objectives for this 3-iteration pass
+- Restore true hazard integrity (gaps must be real gameplay, not just visuals).
+- Keep controls mobile-forgiving after hazard realism increases.
+- Re-smooth pacing after systemic changes to avoid unfair spikes.
+- Add retention-focused survivability so more runs continue instead of hard-ending.
 
-## Priority matrix
+## Iterative backlog (rolling)
 
-## P1 (implemented now)
+### Iteration 1 — Hazard integrity + input forgiveness
+- [x] Make ground segments authoritative for collision.
+- [x] Turn pit gaps into real fall hazards (with configurable width/layout).
+- [x] Add jump buffer + coyote time to absorb touch timing variance.
+- [x] Add fall-death handling and smoke check.
 
-1. **Obstacle telegraphing (game feel + fairness)**
-   - Add pre-impact visual warning for obstacles based on time-to-impact window.
-   - Expected effect: fewer “cheap hits”, better response confidence.
+### Iteration 2 — Post-change pacing rebalance
+- [ ] Re-evaluate run rhythm after real gaps are active.
+- [ ] Introduce safer hazard sequencing/breather logic to reduce spike chains.
+- [ ] Tune reward placement around pits to reinforce skillful lines.
+- [ ] Smoke check start/run/lose/restart after rebalance.
 
-2. **Fair reaction windows via hazard spacing (game feel + fairness)**
-   - Prevent too-dense back-to-back hazard segments with minimum spacing.
-   - Expected effect: lower frustration in first runs, better controllability.
+### Iteration 3 — Retention/continuation priority
+- [ ] Add one strong continuation mechanic (e.g., second-chance revive economy).
+- [ ] Surface mechanic state clearly in HUD/events.
+- [ ] Validate that loop remains readable on mobile without layout regressions.
+- [ ] Final smoke + readiness for GitHub Pages deployment pull.
 
-3. **Smooth progression curve (pacing)**
-   - Replace mostly linear speed pressure with progress-based curve + controlled acceleration.
-   - Expected effect: better flow: easier onboarding phase, meaningful late-run tension.
-
-4. **Short reward loop: crystal streak bonus (replay)**
-   - 3 crystals within time window => instant bonus crystals + armor boost.
-   - Expected effect: mid-run micro-goal, increased replay motivation, positive spikes.
-
-5. **Onboarding clarity (first session UX)**
-   - Improve start overlay text: start action, core controls, objective, streak hint.
-   - Expected effect: faster understanding of “how to play” and “how to do better”.
-
-## P2 (next iteration)
-- Better obstacle taxonomy (low/high variants with different optimal responses).
-- Distance-based spawn profiles (early/simple, mid/mixed, late/pressure).
-- End-of-run summary card with “why lost + what improved”.
-- Safer touch affordance feedback (button press effects + optional haptics bridge).
-
-## P3 (later)
-- Meta progression hook (unlockable passive perks, lightweight economy).
-- Daily challenge modifiers tied to retention mode.
-- Session-based adaptive difficulty tuning from recent deaths.
-
-## Scope control for this pass
-- No external heavy dependencies.
-- Preserve existing start/run/win-lose/restart cycle.
-- Keep mobile-first layout and no scroll regressions.
+## Guardrails
+- No heavy dependencies.
+- Keep start/run/win-lose/restart intact.
+- Keep mobile-first layout and avoid scroll/cut regressions.

@@ -23,7 +23,8 @@ const DEFAULTS = {
     distanceScale: 0.01,
     segmentLength: 180,
     tileWidth: 36,
-    winDistance: 250
+    winDistance: 250,
+    fallDeathMargin: 120
   },
   player: {
     x: 96,
@@ -40,7 +41,9 @@ const DEFAULTS = {
     fatigueJumpCost: 16,
     fatigueRecoverPerSecond: 24,
     maxHP: 3,
-    invulnSeconds: 0.8
+    invulnSeconds: 0.8,
+    coyoteSeconds: 0.12,
+    jumpBufferSeconds: 0.14
   },
   spawner: {
     segmentLead: 14,
@@ -53,7 +56,11 @@ const DEFAULTS = {
     graceDistance: 28,
     rampDistance: 130,
     graceObstacleMultiplier: 0.15,
-    minHazardGap: 220
+    minHazardGap: 220,
+    gapMinWidth: 88,
+    gapMaxWidth: 124,
+    gapEntryMin: 26,
+    gapEntryMax: 62
   },
   reward: {
     streakNeeded: 3,

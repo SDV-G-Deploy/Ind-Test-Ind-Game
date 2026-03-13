@@ -52,6 +52,31 @@ function drawObstacleTelegraph(ctx, drawX, entity, world, player, config) {
   ctx.fill();
 }
 
+function drawGroundSegments(ctx, world, width, height, config) {
+  ctx.fillStyle = '#0a1020';
+  ctx.fillRect(0, world.groundY, width, height - world.groundY);
+
+  ctx.fillStyle = config.render.groundColor;
+  for (const entity of world.entities) {
+    if (entity.kind !== 'ground') continue;
+    const drawX = entity.x - world.cameraX;
+    if (drawX + entity.width < 0 || drawX > width) continue;
+    ctx.fillRect(drawX, world.groundY, entity.width, height - world.groundY);
+  }
+
+  ctx.strokeStyle = 'rgba(163, 224, 150, 0.35)';
+  ctx.lineWidth = 1;
+  for (const entity of world.entities) {
+    if (entity.kind !== 'ground') continue;
+    const drawX = entity.x - world.cameraX;
+    if (drawX + entity.width < 0 || drawX > width) continue;
+    ctx.beginPath();
+    ctx.moveTo(drawX, world.groundY + 0.5);
+    ctx.lineTo(drawX + entity.width, world.groundY + 0.5);
+    ctx.stroke();
+  }
+}
+
 export function createRenderer({ canvas, config, assets = null }) {
   const ctx = canvas.getContext('2d');
 
@@ -66,8 +91,7 @@ export function createRenderer({ canvas, config, assets = null }) {
       ctx.fillStyle = config.render.bgColor;
       ctx.fillRect(0, 0, metrics.cssWidth, metrics.cssHeight);
 
-      ctx.fillStyle = config.render.groundColor;
-      ctx.fillRect(0, world.groundY, metrics.cssWidth, metrics.cssHeight - world.groundY);
+      drawGroundSegments(ctx, world, metrics.cssWidth, metrics.cssHeight, config);
 
       for (const e of world.entities) {
         const drawX = e.x - world.cameraX;

@@ -48,3 +48,19 @@ Current project already has strong base loop (start/run/win-lose/restart, jump/d
   - Mitigation: keep one concise streak indicator and short reward event text.
 - Risk: regression in restart flow.
   - Mitigation: preserve existing state reset model and add explicit reset for new fields.
+
+---
+
+## Iteration 1 findings (deep re-check)
+
+1. **Core fairness bug found:** visual “gaps” were not real hazards.
+   - Ground collision used a single flat `groundY` plane, independent of spawned ground segments.
+   - Result: player never actually fell into pits; tutorial messaging and challenge model were inconsistent with real gameplay.
+
+2. **Immediate retention risk:** challenge curve depended mostly on obstacle collisions.
+   - Without real pits, early/mid run tension flattened.
+   - Player learned less transferable timing skill because one hazard family was effectively disabled.
+
+3. **If real gaps are re-enabled, mobile input forgiveness is mandatory.**
+   - Without buffering/coyote support, edge jumps feel “ignored” on touch due to human tap timing + frame boundaries.
+   - Conclusion: re-enable real gaps **together with** jump leniency to avoid frustration spike.

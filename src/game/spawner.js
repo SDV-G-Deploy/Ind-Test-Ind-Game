@@ -3,6 +3,7 @@ function randomBetween(randomFn, min, max) {
 }
 
 function makeGround(world, x, width) {
+  if (width <= 2) return;
   world.entities.push({
     kind: 'ground',
     x,
@@ -20,6 +21,34 @@ function canSpawnHazard(world, segX, cfg) {
 
 function markHazardSpawn(world, segX) {
   world.lastHazardX = segX;
+}
+
+function spawnGapSegment(world, segX, length, cfg, randomFn) {
+  const gapMin = Math.max(42, Number(cfg.spawner.gapMinWidth || 88));
+  const gapMax = Math.max(gapMin, Number(cfg.spawner.gapMaxWidth || 124));
+  const entryMin = Math.max(10, Number(cfg.spawner.gapEntryMin || 26));
+  const entryMax = Math.max(entryMin, Number(cfg.spawner.gapEntryMax || 62));
+
+  const desiredGapWidth = randomBetween(randomFn, gapMin, gapMax);
+  const maxGapWidth = Math.max(36, length - 26);
+  const gapWidth = Math.min(desiredGapWidth, maxGapWidth);
+
+  const maxEntry = Math.max(entryMin, length - gapWidth - 12);
+  const entry = Math.min(randomBetween(randomFn, entryMin, entryMax), maxEntry);
+  const exit = Math.max(0, length - entry - gapWidth);
+
+  makeGround(world, segX, entry);
+  makeGround(world, segX + entry + gapWidth, exit);
+
+  if (randomFn() < cfg.spawner.crystalChance * 1.2) {
+    world.entities.push({
+      kind: 'crystal',
+      x: segX + entry + gapWidth * 0.5 - 10,
+      y: world.groundY - randomBetween(randomFn, 148, 188),
+      width: 20,
+      height: 20
+    });
+  }
 }
 
 export function createSpawner(config) {
@@ -50,17 +79,8 @@ export function createSpawner(config) {
       const roll = randomFn();
 
       if (hazardAllowed && roll < gapChance) {
-        // gap segment: no ground, maybe reward for risky jump
+        spawnGapSegment(world, segX, length, cfg, randomFn);
         markHazardSpawn(world, segX);
-        if (randomFn() < s.crystalChance) {
-          world.entities.push({
-            kind: 'crystal',
-            x: segX + length * 0.5,
-            y: world.groundY - 170,
-            width: 22,
-            height: 22
-          });
-        }
       } else if (hazardAllowed && roll < gapChance + obstacleChance) {
         makeGround(world, segX, length);
         const obstacleH = randomBetween(randomFn, s.obstacleMinHeight, s.obstacleMaxHeight);
