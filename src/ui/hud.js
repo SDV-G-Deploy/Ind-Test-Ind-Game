@@ -7,12 +7,22 @@ export function createHud() {
   const status = document.querySelector('#hudStatus');
 
   return {
-    render({ player, world, loopMs, promptText = '', mode = 'normal', dailyDate = '', dailyMissions }) {
+    render({ player, world, loopMs, promptText = '', mode = 'normal', dailyDate = '', dailyMissions, retention = {} }) {
       health.textContent = `HP ${player.hp}/${player.maxHP}`;
       armor.textContent = `Armor ${Math.floor(player.armor)}`;
       fatigue.textContent = `Fatigue ${Math.floor(player.fatigue)}/${player.fatigueMax}`;
       run.textContent = `${Math.floor(world.distance)}m · ${player.crystals} crystals`;
-      goal.textContent = `Goal ${Math.floor(world.targetDistance)}m · Streak ${player.crystalStreak}/3`;
+
+      const secondWindCost = Math.max(0, Number(retention.secondWindCost || 0));
+      const secondWindLabel = secondWindCost <= 0
+        ? 'SW off'
+        : player.secondWindUsed
+          ? 'SW used'
+          : player.crystals >= secondWindCost
+            ? 'SW ready'
+            : `SW ${player.crystals}/${secondWindCost}`;
+
+      goal.textContent = `Goal ${Math.floor(world.targetDistance)}m · Streak ${player.crystalStreak}/3 · ${secondWindLabel}`;
 
       const modeText = mode === 'daily' ? `Daily ${dailyDate}` : 'Normal';
       const missionText = dailyMissions

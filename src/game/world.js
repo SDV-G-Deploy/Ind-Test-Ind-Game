@@ -58,6 +58,37 @@ function handleCrystalPickup(player, world, config) {
   }
 }
 
+function trySecondWind(world, player, config, cause = 'hit') {
+  const retentionCfg = config.retention || {};
+  const cost = Math.max(0, Number(retentionCfg.secondWindCost || 0));
+  if (cost <= 0) return false;
+  if (player.secondWindUsed) return false;
+  if (player.crystals < cost) return false;
+
+  player.crystals -= cost;
+  player.secondWindUsed = true;
+  player.hp = Math.max(1, player.hp);
+
+  const armorRestore = Math.max(0, Number(retentionCfg.secondWindArmorRestore || 45));
+  player.armor = Math.min(player.armorMax, Math.max(player.armor, armorRestore));
+
+  const invulnSeconds = Math.max(0.1, Number(retentionCfg.secondWindInvulnSeconds || 1.2));
+  player.invulnTime = Math.max(player.invulnTime, invulnSeconds);
+  player.isSlamming = false;
+
+  if (cause === 'fall') {
+    player.y = world.groundY - player.height;
+    player.vy = 0;
+    player.onGround = true;
+    player.jumpsLeft = player.maxJumps;
+  }
+
+  world.lastCollisionEvent = 'second-wind';
+  world.lastRewardEvent = `Second Wind! -${cost} crystals`;
+  world.rewardEventTtl = 2.2;
+  return true;
+}
+
 export function createWorld(config, canvas) {
   const initialCanvasHeight = canvas.height;
   const groundRatio = Number(config.world.groundRatio || config.world.groundY / initialCanvasHeight || 0.875);
@@ -115,10 +146,13 @@ export function updateWorld(world, player, spawner, config, dt) {
 
   const fallMargin = Math.max(40, Number(config.world.fallDeathMargin || 120));
   if (player.y > world.canvasHeight + fallMargin) {
-    world.gameOver = true;
-    world.gameWon = false;
-    world.lastCollisionEvent = 'fall-death';
-    commitRecords(world, player);
+    const revived = trySecondWind(world, player, config, 'fall');
+    if (!revived) {
+      world.gameOver = true;
+      world.gameWon = false;
+      world.lastCollisionEvent = 'fall-death';
+      commitRecords(world, player);
+    }
     return;
   }
 
@@ -151,8 +185,11 @@ export function updateWorld(world, player, spawner, config, dt) {
           world.entities.splice(i, 1);
         }
         if (dead) {
-          world.gameOver = true;
-          commitRecords(world, player);
+          const revived = trySecondWind(world, player, config, 'obstacle');
+          if (!revived) {
+            world.gameOver = true;
+            commitRecords(world, player);
+          }
         }
       }
 

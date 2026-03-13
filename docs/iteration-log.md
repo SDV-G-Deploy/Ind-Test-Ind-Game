@@ -18,6 +18,9 @@
 - **Expected effect:** More readable rhythm, fewer spike deaths, and stronger skill-learning loop per run.
 
 ## Iteration 3
-- **Hypothesis:** _pending_
-- **Change:** _pending_
-- **Expected effect:** _pending_
+- **Hypothesis:** A one-time in-run continuation (paid by crystals) will reduce premature churn after unlucky deaths while preserving stakes.
+- **Change:**
+  - Added `Second Wind` revive system for lethal obstacle/fall outcomes.
+  - Revive spends crystals once per run, restores survivability, grants short invulnerability, and recovers from fall position.
+  - Exposed live `Second Wind` state in HUD (`ready / used / progress`).
+- **Expected effect:** Higher run continuation and better short-session retention without removing challenge identity.

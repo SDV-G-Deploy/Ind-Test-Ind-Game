@@ -18,14 +18,14 @@
 - [x] Re-evaluate run rhythm after real gaps are active.
 - [x] Add hazard sequencing cadence via recovery segments (breather logic).
 - [x] Add profile-based pacing (early/mid/late behavior multipliers).
-- [x] Add guided crystal arcs around gap routes.
+- [x] Add guided crystal lines over/after gaps.
 - [x] Smoke check start/run/lose/restart after rebalance.
 
 ### Iteration 3 — Retention/continuation priority
-- [ ] Add one strong continuation mechanic (e.g., second-chance revive economy).
-- [ ] Surface mechanic state clearly in HUD/events.
-- [ ] Validate that loop remains readable on mobile without layout regressions.
-- [ ] Final smoke + readiness for GitHub Pages deployment pull.
+- [x] Add one-time second-chance revive economy (Second Wind).
+- [x] Surface continuation status clearly in HUD.
+- [x] Re-check gameplay loop remains readable without layout regressions.
+- [x] Final smoke and deployment readiness check for Pages pull.
 
 ## Guardrails
 - No heavy dependencies.

@@ -24,7 +24,8 @@ export function createPlayer(config, groundY) {
     isSlamming: false,
     invulnTime: 0,
     jumpBufferTime: 0,
-    coyoteTime: Number(p.coyoteSeconds || 0)
+    coyoteTime: Number(p.coyoteSeconds || 0),
+    secondWindUsed: false
   };
 }
 

@@ -81,3 +81,19 @@ Current project already has strong base loop (start/run/win-lose/restart, jump/d
    - Early phase needs confidence-building.
    - Mid phase should teach hazard mix.
    - Late phase can tighten pressure after core skills are formed.
+
+---
+
+## Iteration 3 findings (retention-focused)
+
+1. **Hard terminal failures still cut promising runs too early.**
+   - Even with better pacing, one unlucky hit/fall can end a run right after meaningful progress.
+   - This is high-cost for retention because momentum and intent are lost instantly.
+
+2. **Best low-cost retention lever here: one-time continuation, not permanent safety.**
+   - A single “second chance” keeps stakes while reducing rage-quit moments.
+   - Crystal-cost gating ensures mechanic is earned in-run and does not trivialize danger.
+
+3. **Mechanic must be explicit in HUD.**
+   - If players cannot read readiness/availability quickly, continuation systems underperform.
+   - Clear state labels (`ready / used / progress`) are required for decision-making.

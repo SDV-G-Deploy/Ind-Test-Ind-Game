@@ -75,6 +75,11 @@ const DEFAULTS = {
     minLeadSeconds: 0.2,
     maxLeadSeconds: 1.2
   },
+  retention: {
+    secondWindCost: 6,
+    secondWindArmorRestore: 45,
+    secondWindInvulnSeconds: 1.2
+  },
   render: {
     bgColor: '#101629',
     groundColor: '#284021',
@@ -96,6 +101,7 @@ async function loadBalance() {
       spawner: { ...DEFAULTS.spawner, ...(loaded.spawner || {}) },
       reward: { ...DEFAULTS.reward, ...(loaded.reward || {}) },
       telegraph: { ...DEFAULTS.telegraph, ...(loaded.telegraph || {}) },
+      retention: { ...DEFAULTS.retention, ...(loaded.retention || {}) },
       render: { ...DEFAULTS.render, ...(loaded.render || {}) }
     };
   } catch {
@@ -253,7 +259,8 @@ async function boot() {
         promptText: tutorial.getPrompt(),
         mode: dailyRun.getMode(),
         dailyDate: dailyRun.getDateKey(),
-        dailyMissions: dailyMissions.getSnapshot()
+        dailyMissions: dailyMissions.getSnapshot(),
+        retention: config.retention
       });
     }
   });
