@@ -34,6 +34,7 @@ export function createRenderer({ canvas, config, assets = null }) {
       const world = state.world;
       const player = state.player;
       world.canvasHeight = metrics.cssHeight;
+      world.groundY = Math.round(metrics.cssHeight * world.groundRatio);
 
       ctx.fillStyle = config.render.bgColor;
       ctx.fillRect(0, 0, metrics.cssWidth, metrics.cssHeight);

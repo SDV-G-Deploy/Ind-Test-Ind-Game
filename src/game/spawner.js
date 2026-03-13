@@ -29,6 +29,12 @@ export function createSpawner(config) {
     spawnNextSegment(world, cfg) {
       const length = cfg.world.segmentLength;
       const segX = world.nextSegmentX;
+      const runDistance = world.distance || 0;
+      const graceDistance = Number(s.graceDistance || 0);
+      const rampDistance = Math.max(1, Number(s.rampDistance || 1));
+      const graceMul = Number(s.graceObstacleMultiplier || 0.2);
+      const pressure = runDistance <= graceDistance ? 0 : Math.min(1, (runDistance - graceDistance) / rampDistance);
+      const obstacleChance = s.obstacleChance * (graceMul + (1 - graceMul) * pressure);
       const roll = randomFn();
 
       if (roll < s.gapChance) {
@@ -42,7 +48,7 @@ export function createSpawner(config) {
             height: 22
           });
         }
-      } else if (roll < s.gapChance + s.obstacleChance) {
+      } else if (roll < s.gapChance + obstacleChance) {
         makeGround(world, segX, length);
         const obstacleH = randomBetween(randomFn, s.obstacleMinHeight, s.obstacleMaxHeight);
         world.entities.push({

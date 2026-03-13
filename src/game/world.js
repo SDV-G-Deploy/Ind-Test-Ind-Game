@@ -20,17 +20,21 @@ function commitRecords(world, player) {
 }
 
 export function createWorld(config, canvas) {
+  const initialCanvasHeight = canvas.height;
+  const groundRatio = Number(config.world.groundRatio || config.world.groundY / initialCanvasHeight || 0.875);
+
   return {
     gravity: config.world.gravity,
     speed: config.world.baseSpeed,
     speedRamp: config.world.speedRampPerSecond,
     maxSpeed: config.world.maxSpeed,
-    groundY: config.world.groundY,
+    groundRatio,
+    groundY: Math.round(initialCanvasHeight * groundRatio),
     entities: [],
     nextSegmentX: 0,
     cameraX: 0,
     distance: 0,
-    canvasHeight: canvas.height,
+    canvasHeight: initialCanvasHeight,
     gameOver: false,
     gameWon: false,
     started: false,

@@ -14,10 +14,11 @@ import { createDailyMissions } from './retention/dailyMissions.js';
 const DEFAULTS = {
   world: {
     gravity: 2400,
-    baseSpeed: 200,
-    speedRampPerSecond: 2,
-    maxSpeed: 350,
+    baseSpeed: 185,
+    speedRampPerSecond: 1.6,
+    maxSpeed: 320,
     groundY: 560,
+    groundRatio: 0.875,
     distanceScale: 0.01,
     segmentLength: 180,
     tileWidth: 36,
@@ -35,19 +36,22 @@ const DEFAULTS = {
     armorRegenPerSecond: 18,
     armorHitCost: 35,
     fatigueMax: 100,
-    fatigueJumpCost: 28,
-    fatigueRecoverPerSecond: 16,
+    fatigueJumpCost: 16,
+    fatigueRecoverPerSecond: 24,
     maxHP: 3,
     invulnSeconds: 0.8
   },
   spawner: {
     segmentLead: 14,
-    gapChance: 0.2,
-    obstacleChance: 0.35,
-    crystalChance: 0.55,
+    gapChance: 0.16,
+    obstacleChance: 0.2,
+    crystalChance: 0.5,
     heartChance: 0.08,
     obstacleMinHeight: 45,
-    obstacleMaxHeight: 90
+    obstacleMaxHeight: 84,
+    graceDistance: 28,
+    rampDistance: 130,
+    graceObstacleMultiplier: 0.15
   },
   render: {
     bgColor: '#101629',
