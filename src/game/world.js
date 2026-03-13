@@ -14,6 +14,9 @@ export function createWorld(config, canvas) {
     distance: 0,
     canvasHeight: canvas.height,
     gameOver: false,
+    gameWon: false,
+    started: false,
+    targetDistance: Number(config.world.winDistance || 250),
     bestDistance: Number(localStorage.getItem('runner.bestDistance') || 0),
     lastCollisionEvent: 'none'
   };
@@ -26,6 +29,15 @@ export function updateWorld(world, player, spawner, config, dt) {
   const scroll = world.speed * dt;
   world.cameraX += scroll;
   world.distance += scroll * config.world.distanceScale;
+
+  if (world.distance >= world.targetDistance) {
+    world.gameOver = true;
+    world.gameWon = true;
+    world.bestDistance = Math.max(world.bestDistance, Math.floor(world.distance));
+    localStorage.setItem('runner.bestDistance', String(world.bestDistance));
+    world.lastCollisionEvent = 'victory';
+    return;
+  }
 
   while (world.nextSegmentX < world.cameraX + config.world.segmentLength * config.spawner.segmentLead) {
     spawner.spawnNextSegment(world, config);

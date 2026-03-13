@@ -48,6 +48,7 @@ http://localhost:4173/
 
 ## Gameplay (MVP rules)
 
+-   **Start**: press **JUMP** / **Space** to start a run
 -   **Autorun**: the world scrolls continuously
 -   **Jump / Double Jump**: second jump in-air increases fatigue
 -   **Fatigue**: limits repeated double-jumps; recovers over time
@@ -57,6 +58,7 @@ http://localhost:4173/
     advantage
 -   **HP**: start with 3 hearts. Hits reduce HP (armor may absorb
     first). 0 HP = game over
+-   **Victory condition**: reach target distance (default 250m)
 
 ### Collectibles
 

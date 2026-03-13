@@ -20,7 +20,8 @@ const DEFAULTS = {
     groundY: 560,
     distanceScale: 0.01,
     segmentLength: 180,
-    tileWidth: 36
+    tileWidth: 36,
+    winDistance: 250
   },
   player: {
     x: 96,
@@ -74,13 +75,15 @@ async function loadBalance() {
   }
 }
 
-function resetRun(state, config) {
+function resetRun(state, config, { autoStart = false } = {}) {
   state.world.entities.length = 0;
   state.world.nextSegmentX = 0;
   state.world.cameraX = 0;
   state.world.distance = 0;
   state.world.speed = config.world.baseSpeed;
   state.world.gameOver = false;
+  state.world.gameWon = false;
+  state.world.started = autoStart;
   state.world.lastCollisionEvent = 'none';
 
   const freshPlayer = createPlayer(config, state.world.groundY);
@@ -170,7 +173,11 @@ async function boot() {
       }
 
       if (world.gameOver) {
-        if (input.consume('jump')) resetRun(state, config);
+        if (input.consume('jump')) resetRun(state, config, { autoStart: true });
+      } else if (!world.started) {
+        if (input.consume('jump')) {
+          world.started = true;
+        }
       } else {
         updatePlayer(player, world, input, config, dt);
         tutorial.update(player);

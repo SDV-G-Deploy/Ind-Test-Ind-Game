@@ -94,9 +94,24 @@ export function createRenderer({ canvas, config, assets = null }) {
         });
       }
 
-      if (world.gameOver) {
+      if (!world.started || world.gameOver) {
         ctx.fillStyle = 'rgba(0,0,0,0.55)';
         ctx.fillRect(0, 0, metrics.cssWidth, metrics.cssHeight);
+
+        ctx.fillStyle = '#dce8ff';
+        ctx.textAlign = 'center';
+        ctx.font = 'bold 20px system-ui, sans-serif';
+
+        const title = !world.started ? 'Sky Rat Runner' : world.gameWon ? 'Victory!' : 'Game Over';
+        const hint = !world.started
+          ? 'Press JUMP or Space to start'
+          : 'Press JUMP or Space to play again';
+
+        ctx.fillText(title, metrics.cssWidth * 0.5, metrics.cssHeight * 0.42);
+        ctx.font = '14px system-ui, sans-serif';
+        ctx.fillStyle = '#9fb4dc';
+        ctx.fillText(`Goal: reach ${Math.floor(world.targetDistance)}m`, metrics.cssWidth * 0.5, metrics.cssHeight * 0.48);
+        ctx.fillText(hint, metrics.cssWidth * 0.5, metrics.cssHeight * 0.53);
       }
     }
   };
