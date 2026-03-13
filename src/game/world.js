@@ -85,7 +85,8 @@ export function createWorld(config, canvas) {
     lastCollisionEvent: 'none',
     lastRewardEvent: '',
     rewardEventTtl: 0,
-    lastHazardX: -Infinity
+    lastHazardX: -Infinity,
+    hazardCooldownSegments: 0
   };
 }
 

@@ -10,9 +10,12 @@
 - **Expected effect:** More authentic hazard loop, better perceived control, stronger engagement from real risk/reward routing.
 
 ## Iteration 2
-- **Hypothesis:** _pending_
-- **Change:** _pending_
-- **Expected effect:** _pending_
+- **Hypothesis:** After activating real pits, runs need a clearer danger→recovery cadence; controlled breathers will reduce frustration without flattening difficulty.
+- **Change:**
+  - Added spawn phase profiles (early/mid/late) that modulate hazard rates and gap width pressure.
+  - Added recovery segment cooldown after hazards to prevent harsh back-to-back chains.
+  - Added guided crystal lines over/after gaps to teach safer movement trajectories.
+- **Expected effect:** More readable rhythm, fewer spike deaths, and stronger skill-learning loop per run.
 
 ## Iteration 3
 - **Hypothesis:** _pending_

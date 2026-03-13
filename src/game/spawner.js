@@ -13,19 +13,82 @@ function makeGround(world, x, width) {
   });
 }
 
-function canSpawnHazard(world, segX, cfg) {
-  const minGap = Number(cfg.spawner.minHazardGap || 0);
+function getSpawnProfile(world) {
+  const progress = Math.min(1, (world.distance || 0) / Math.max(1, world.targetDistance || 1));
+
+  if (progress < 0.3) {
+    return {
+      progress,
+      gapMul: 0.75,
+      obstacleMul: 0.82,
+      minGapMul: 1.12,
+      gapWidthMul: 0.9,
+      recoverySegments: 1
+    };
+  }
+
+  if (progress < 0.75) {
+    return {
+      progress,
+      gapMul: 1,
+      obstacleMul: 1,
+      minGapMul: 1,
+      gapWidthMul: 1,
+      recoverySegments: 1
+    };
+  }
+
+  return {
+    progress,
+    gapMul: 1.18,
+    obstacleMul: 1.12,
+    minGapMul: 0.86,
+    gapWidthMul: 1.1,
+    recoverySegments: 0
+  };
+}
+
+function canSpawnHazard(world, segX, cfg, profile) {
+  if (world.hazardCooldownSegments > 0) return false;
+
+  const minGap = Number(cfg.spawner.minHazardGap || 0) * Number(profile.minGapMul || 1);
   if (!minGap) return true;
+
   return segX - (world.lastHazardX ?? -Infinity) >= minGap;
 }
 
-function markHazardSpawn(world, segX) {
+function markHazardSpawn(world, segX, cooldownSegments) {
   world.lastHazardX = segX;
+  world.hazardCooldownSegments = Math.max(0, Number(cooldownSegments || 0));
 }
 
-function spawnGapSegment(world, segX, length, cfg, randomFn) {
-  const gapMin = Math.max(42, Number(cfg.spawner.gapMinWidth || 88));
-  const gapMax = Math.max(gapMin, Number(cfg.spawner.gapMaxWidth || 124));
+function spawnRecoverySegment(world, segX, length, cfg, randomFn) {
+  makeGround(world, segX, length);
+
+  const chance = Math.max(0, Math.min(1, Number(cfg.spawner.recoveryCrystalChance || 0.6)));
+  if (randomFn() < chance) {
+    const firstX = segX + length * randomBetween(randomFn, 0.45, 0.58);
+    const secondX = segX + length * randomBetween(randomFn, 0.64, 0.82);
+    world.entities.push({
+      kind: 'crystal',
+      x: firstX,
+      y: world.groundY - randomBetween(randomFn, 122, 148),
+      width: 20,
+      height: 20
+    });
+    world.entities.push({
+      kind: 'crystal',
+      x: secondX,
+      y: world.groundY - randomBetween(randomFn, 132, 168),
+      width: 20,
+      height: 20
+    });
+  }
+}
+
+function spawnGapSegment(world, segX, length, cfg, randomFn, profile) {
+  const gapMin = Math.max(42, Number(cfg.spawner.gapMinWidth || 88) * Number(profile.gapWidthMul || 1));
+  const gapMax = Math.max(gapMin, Number(cfg.spawner.gapMaxWidth || 124) * Number(profile.gapWidthMul || 1.08));
   const entryMin = Math.max(10, Number(cfg.spawner.gapEntryMin || 26));
   const entryMax = Math.max(entryMin, Number(cfg.spawner.gapEntryMax || 62));
 
@@ -40,15 +103,31 @@ function spawnGapSegment(world, segX, length, cfg, randomFn) {
   makeGround(world, segX, entry);
   makeGround(world, segX + entry + gapWidth, exit);
 
-  if (randomFn() < cfg.spawner.crystalChance * 1.2) {
+  const arcPoints = [
+    {
+      x: segX + Math.max(4, entry * 0.72),
+      y: world.groundY - randomBetween(randomFn, 118, 140)
+    },
+    {
+      x: segX + entry + gapWidth * 0.5,
+      y: world.groundY - randomBetween(randomFn, 154, 186)
+    },
+    {
+      x: segX + entry + gapWidth + Math.max(4, Math.min(28, exit * 0.34)),
+      y: world.groundY - randomBetween(randomFn, 124, 148)
+    }
+  ];
+
+  arcPoints.forEach((point, index) => {
+    if (index === 2 && exit < 12) return;
     world.entities.push({
       kind: 'crystal',
-      x: segX + entry + gapWidth * 0.5 - 10,
-      y: world.groundY - randomBetween(randomFn, 148, 188),
+      x: point.x,
+      y: point.y,
       width: 20,
       height: 20
     });
-  }
+  });
 }
 
 export function createSpawner(config) {
@@ -73,14 +152,24 @@ export function createSpawner(config) {
       const rampDistance = Math.max(1, Number(s.rampDistance || 1));
       const graceMul = Number(s.graceObstacleMultiplier || 0.2);
       const pressure = runDistance <= graceDistance ? 0 : Math.min(1, (runDistance - graceDistance) / rampDistance);
-      const obstacleChance = s.obstacleChance * (graceMul + (1 - graceMul) * pressure);
-      const gapChance = s.gapChance * (0.35 + 0.65 * pressure);
-      const hazardAllowed = canSpawnHazard(world, segX, cfg);
+      const profile = getSpawnProfile(world);
+
+      if (world.hazardCooldownSegments > 0) {
+        spawnRecoverySegment(world, segX, length, cfg, randomFn);
+        world.hazardCooldownSegments -= 1;
+        world.nextSegmentX += length;
+        return;
+      }
+
+      const obstacleChance = s.obstacleChance * (graceMul + (1 - graceMul) * pressure) * profile.obstacleMul;
+      const gapChance = s.gapChance * (0.35 + 0.65 * pressure) * profile.gapMul;
+      const hazardAllowed = canSpawnHazard(world, segX, cfg, profile);
       const roll = randomFn();
 
       if (hazardAllowed && roll < gapChance) {
-        spawnGapSegment(world, segX, length, cfg, randomFn);
-        markHazardSpawn(world, segX);
+        spawnGapSegment(world, segX, length, cfg, randomFn, profile);
+        const cooldown = Number(profile.recoverySegments) + Number(cfg.spawner.recoverySegments || 0);
+        markHazardSpawn(world, segX, cooldown);
       } else if (hazardAllowed && roll < gapChance + obstacleChance) {
         makeGround(world, segX, length);
         const obstacleH = randomBetween(randomFn, s.obstacleMinHeight, s.obstacleMaxHeight);
@@ -91,7 +180,8 @@ export function createSpawner(config) {
           width: 34,
           height: obstacleH
         });
-        markHazardSpawn(world, segX);
+        const cooldown = Number(profile.recoverySegments) + Number(cfg.spawner.lateRecoverySegments || 0);
+        markHazardSpawn(world, segX, cooldown);
       } else {
         makeGround(world, segX, length);
       }

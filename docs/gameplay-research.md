@@ -64,3 +64,20 @@ Current project already has strong base loop (start/run/win-lose/restart, jump/d
 3. **If real gaps are re-enabled, mobile input forgiveness is mandatory.**
    - Without buffering/coyote support, edge jumps feel “ignored” on touch due to human tap timing + frame boundaries.
    - Conclusion: re-enable real gaps **together with** jump leniency to avoid frustration spike.
+
+---
+
+## Iteration 2 findings (after iteration 1 changes)
+
+1. **Challenge rhythm became valid, but sometimes “choppy”.**
+   - Real gaps created proper risk, but random sequencing could still produce fast pressure clustering.
+   - Even when technically possible, repeated hazard density felt exhausting in short sessions.
+
+2. **Opportunity: add intentional “breathers” after hazards.**
+   - Runners retain better when danger/recovery alternates in a readable cadence.
+   - Recovery segments can carry collectible guidance to reinforce mastery loops.
+
+3. **Progressive pacing should be phase-based, not just linear chance scaling.**
+   - Early phase needs confidence-building.
+   - Mid phase should teach hazard mix.
+   - Late phase can tighten pressure after core skills are formed.

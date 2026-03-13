@@ -60,7 +60,10 @@ const DEFAULTS = {
     gapMinWidth: 88,
     gapMaxWidth: 124,
     gapEntryMin: 26,
-    gapEntryMax: 62
+    gapEntryMax: 62,
+    recoverySegments: 1,
+    lateRecoverySegments: 0,
+    recoveryCrystalChance: 0.6
   },
   reward: {
     streakNeeded: 3,
@@ -115,6 +118,7 @@ function resetRun(state, config, { autoStart = false } = {}) {
   state.world.lastRewardEvent = '';
   state.world.rewardEventTtl = 0;
   state.world.lastHazardX = -Infinity;
+  state.world.hazardCooldownSegments = 0;
 
   const freshPlayer = createPlayer(config, state.world.groundY);
   Object.assign(state.player, freshPlayer);
