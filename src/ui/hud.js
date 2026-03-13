@@ -3,12 +3,8 @@ export function createHud() {
 
   return {
     render({ player, world, loopMs, promptText = '', mode = 'normal', dailyDate = '', dailyMissions }) {
-      const gameOverText = world.gameOver
-        ? ` · GAME OVER ${Math.floor(world.distance)}m · best ${world.bestDistance}`
-        : '';
-      const tutorialText = promptText ? ` · ${promptText}` : '';
-<<<<<<< codex/implement-milestone-m1-features-sequentially-91zo02
       const modeText = mode === 'daily' ? ` · Daily ${dailyDate}` : ' · Normal';
+      const objectiveText = ` · Goal ${Math.floor(world.targetDistance)}m`;
 
       const missionText = dailyMissions
         ? (() => {
@@ -17,23 +13,21 @@ export function createHud() {
           })()
         : '';
 
+      const stateText = world.gameOver
+        ? world.gameWon
+          ? ` · VICTORY! Press JUMP to play again`
+          : ` · GAME OVER! Press JUMP to retry`
+        : world.started
+          ? ' · Running'
+          : ' · Press JUMP to start';
+
+      const tutorialText = promptText && world.started && !world.gameOver ? ` · ${promptText}` : '';
+
       panel.textContent = `HP ${player.hp}/${player.maxHP} · Armor ${Math.floor(player.armor)} · Fatigue ${Math.floor(
         player.fatigue
       )} · Crystals ${player.crystals} · Distance ${Math.floor(world.distance)} · ${Math.round(
         loopMs
-      )}ms${modeText}${missionText}${gameOverText}${tutorialText}`;
-=======
-      const modeText = mode === 'daily' ? ` · Daily ${dailyDate}` : ' · Normal mode';
-
-      const missionText = dailyMissions
-        ? ` · Bank ${dailyMissions.bankedCrystals} · Missions ${dailyMissions.missions
-            .map((mission) => `${mission.label} (${Math.floor(mission.progress)}/${mission.target})`)
-            .join(' | ')}`
-        : '';
-      panel.textContent = `HP ${player.hp}/${player.maxHP} · Armor ${Math.floor(player.armor)} · Fatigue ${Math.floor(
-        player.fatigue
-      )} · Crystals ${player.crystals} · Distance ${Math.floor(world.distance)} · ${Math.round(loopMs)}ms${modeText}${missionText}${gameOverText}${tutorialText}`;
->>>>>>> main
+      )}ms${modeText}${objectiveText}${missionText}${stateText}${tutorialText}`;
     }
   };
 }

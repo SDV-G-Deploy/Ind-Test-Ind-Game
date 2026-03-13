@@ -1,4 +1,5 @@
 import { createLoop } from './engine/loop.js';
+import { loadAssets } from './engine/assets.js';
 import { createInput } from './engine/input.js';
 import { createRenderer } from './engine/renderer.js';
 import { createPlayer, getSlamAvailability, updatePlayer } from './game/player.js';
