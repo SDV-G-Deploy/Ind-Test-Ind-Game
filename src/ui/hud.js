@@ -12,7 +12,7 @@ export function createHud() {
       armor.textContent = `Armor ${Math.floor(player.armor)}`;
       fatigue.textContent = `Fatigue ${Math.floor(player.fatigue)}/${player.fatigueMax}`;
       run.textContent = `${Math.floor(world.distance)}m · ${player.crystals} crystals`;
-      goal.textContent = `Goal ${Math.floor(world.targetDistance)}m`;
+      goal.textContent = `Goal ${Math.floor(world.targetDistance)}m · Streak ${player.crystalStreak}/3`;
 
       const modeText = mode === 'daily' ? `Daily ${dailyDate}` : 'Normal';
       const missionText = dailyMissions
@@ -36,7 +36,8 @@ export function createHud() {
           : 'Ready · Press JUMP to start';
 
       const tutorialText = promptText && world.started && !world.gameOver ? ` · ${promptText}` : '';
-      status.textContent = `${stateText} · Mode ${modeText}${missionText}${recordsText}${perfText}${newRecordText}${tutorialText}`;
+      const rewardText = world.lastRewardEvent && world.started && !world.gameOver ? ` · ${world.lastRewardEvent}` : '';
+      status.textContent = `${stateText} · Mode ${modeText}${missionText}${recordsText}${perfText}${newRecordText}${rewardText}${tutorialText}`;
     }
   };
 }

@@ -18,6 +18,9 @@ export function createPlayer(config, groundY) {
     fatigue: 0,
     fatigueMax: p.fatigueMax,
     crystals: 0,
+    crystalStreak: 0,
+    crystalStreakTimer: 0,
+    streakBonuses: 0,
     isSlamming: false,
     invulnTime: 0
   };
@@ -40,6 +43,13 @@ export function updatePlayer(player, world, input, config, dt) {
 
   if (player.invulnTime > 0) {
     player.invulnTime = Math.max(0, player.invulnTime - dt);
+  }
+
+  if (player.crystalStreakTimer > 0) {
+    player.crystalStreakTimer = Math.max(0, player.crystalStreakTimer - dt);
+    if (player.crystalStreakTimer <= 0) {
+      player.crystalStreak = 0;
+    }
   }
 
   player.armor = Math.min(player.armorMax, player.armor + p.armorRegenPerSecond * dt);

@@ -16,6 +16,7 @@ const DEFAULTS = {
     gravity: 2400,
     baseSpeed: 185,
     speedRampPerSecond: 1.6,
+    speedCurvePower: 1.2,
     maxSpeed: 320,
     groundY: 560,
     groundRatio: 0.875,
@@ -51,7 +52,18 @@ const DEFAULTS = {
     obstacleMaxHeight: 84,
     graceDistance: 28,
     rampDistance: 130,
-    graceObstacleMultiplier: 0.15
+    graceObstacleMultiplier: 0.15,
+    minHazardGap: 220
+  },
+  reward: {
+    streakNeeded: 3,
+    streakWindowSeconds: 4,
+    streakBonusCrystals: 2,
+    streakArmorBonus: 20
+  },
+  telegraph: {
+    minLeadSeconds: 0.2,
+    maxLeadSeconds: 1.2
   },
   render: {
     bgColor: '#101629',
@@ -72,6 +84,8 @@ async function loadBalance() {
       world: { ...DEFAULTS.world, ...(loaded.world || {}) },
       player: { ...DEFAULTS.player, ...(loaded.player || {}) },
       spawner: { ...DEFAULTS.spawner, ...(loaded.spawner || {}) },
+      reward: { ...DEFAULTS.reward, ...(loaded.reward || {}) },
+      telegraph: { ...DEFAULTS.telegraph, ...(loaded.telegraph || {}) },
       render: { ...DEFAULTS.render, ...(loaded.render || {}) }
     };
   } catch {
@@ -91,6 +105,9 @@ function resetRun(state, config, { autoStart = false } = {}) {
   state.world.newBestDistance = false;
   state.world.newBestCrystals = false;
   state.world.lastCollisionEvent = 'none';
+  state.world.lastRewardEvent = '';
+  state.world.rewardEventTtl = 0;
+  state.world.lastHazardX = -Infinity;
 
   const freshPlayer = createPlayer(config, state.world.groundY);
   Object.assign(state.player, freshPlayer);

@@ -2,7 +2,8 @@
   "world": {
     "gravity": 2400,
     "baseSpeed": 185,
-    "speedRampPerSecond": 1.6,
+    "speedRampPerSecond": 1.8,
+    "speedCurvePower": 1.15,
     "maxSpeed": 320,
     "groundY": 560,
     "groundRatio": 0.875,
@@ -38,7 +39,18 @@
     "obstacleMaxHeight": 84,
     "graceDistance": 28,
     "rampDistance": 130,
-    "graceObstacleMultiplier": 0.15
+    "graceObstacleMultiplier": 0.15,
+    "minHazardGap": 220
+  },
+  "reward": {
+    "streakNeeded": 3,
+    "streakWindowSeconds": 4,
+    "streakBonusCrystals": 2,
+    "streakArmorBonus": 20
+  },
+  "telegraph": {
+    "minLeadSeconds": 0.2,
+    "maxLeadSeconds": 1.2
   },
   "render": {
     "bgColor": "#101629",

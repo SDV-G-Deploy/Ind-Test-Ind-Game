@@ -12,6 +12,16 @@ function makeGround(world, x, width) {
   });
 }
 
+function canSpawnHazard(world, segX, cfg) {
+  const minGap = Number(cfg.spawner.minHazardGap || 0);
+  if (!minGap) return true;
+  return segX - (world.lastHazardX ?? -Infinity) >= minGap;
+}
+
+function markHazardSpawn(world, segX) {
+  world.lastHazardX = segX;
+}
+
 export function createSpawner(config) {
   const s = config.spawner;
   let randomFn = Math.random;
@@ -35,10 +45,13 @@ export function createSpawner(config) {
       const graceMul = Number(s.graceObstacleMultiplier || 0.2);
       const pressure = runDistance <= graceDistance ? 0 : Math.min(1, (runDistance - graceDistance) / rampDistance);
       const obstacleChance = s.obstacleChance * (graceMul + (1 - graceMul) * pressure);
+      const gapChance = s.gapChance * (0.35 + 0.65 * pressure);
+      const hazardAllowed = canSpawnHazard(world, segX, cfg);
       const roll = randomFn();
 
-      if (roll < s.gapChance) {
+      if (hazardAllowed && roll < gapChance) {
         // gap segment: no ground, maybe reward for risky jump
+        markHazardSpawn(world, segX);
         if (randomFn() < s.crystalChance) {
           world.entities.push({
             kind: 'crystal',
@@ -48,7 +61,7 @@ export function createSpawner(config) {
             height: 22
           });
         }
-      } else if (roll < s.gapChance + obstacleChance) {
+      } else if (hazardAllowed && roll < gapChance + obstacleChance) {
         makeGround(world, segX, length);
         const obstacleH = randomBetween(randomFn, s.obstacleMinHeight, s.obstacleMaxHeight);
         world.entities.push({
@@ -58,6 +71,7 @@ export function createSpawner(config) {
           width: 34,
           height: obstacleH
         });
+        markHazardSpawn(world, segX);
       } else {
         makeGround(world, segX, length);
       }

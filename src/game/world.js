@@ -19,6 +19,45 @@ function commitRecords(world, player) {
   }
 }
 
+function updateSpeed(world, config, dt) {
+  const maxSpeed = world.maxSpeed;
+  const baseSpeed = config.world.baseSpeed;
+  const progressToWin = Math.min(1, world.distance / Math.max(1, world.targetDistance));
+  const easingPower = Number(config.world.speedCurvePower || 1.1);
+  const curvedProgress = Math.pow(progressToWin, easingPower);
+  const targetSpeed = baseSpeed + (maxSpeed - baseSpeed) * curvedProgress;
+  const accel = Math.max(0.1, Number(world.speedRamp || config.world.speedRampPerSecond || 1)) * dt;
+
+  if (world.speed < targetSpeed) {
+    world.speed = Math.min(targetSpeed, world.speed + accel);
+  } else {
+    world.speed = Math.max(targetSpeed, world.speed - accel * 0.8);
+  }
+}
+
+function handleCrystalPickup(player, world, config) {
+  const rewardCfg = config.reward || {};
+  const streakNeeded = Math.max(2, Number(rewardCfg.streakNeeded || 3));
+  const streakWindow = Math.max(0.6, Number(rewardCfg.streakWindowSeconds || 4));
+  const streakBonus = Math.max(0, Number(rewardCfg.streakBonusCrystals || 2));
+  const streakArmor = Math.max(0, Number(rewardCfg.streakArmorBonus || 20));
+
+  player.crystals += 1;
+  player.crystalStreak += 1;
+  player.crystalStreakTimer = streakWindow;
+
+  if (player.crystalStreak >= streakNeeded) {
+    player.crystals += streakBonus;
+    player.armor = Math.min(player.armorMax, player.armor + streakArmor);
+    player.crystalStreak = 0;
+    player.crystalStreakTimer = 0;
+    player.streakBonuses += 1;
+    world.lastRewardEvent = `Crystal streak! +${streakBonus} crystals, +${streakArmor} armor`;
+  } else {
+    world.lastRewardEvent = '';
+  }
+}
+
 export function createWorld(config, canvas) {
   const initialCanvasHeight = canvas.height;
   const groundRatio = Number(config.world.groundRatio || config.world.groundY / initialCanvasHeight || 0.875);
@@ -43,17 +82,27 @@ export function createWorld(config, canvas) {
     bestCrystals: Number(localStorage.getItem('runner.bestCrystals') || 0),
     newBestDistance: false,
     newBestCrystals: false,
-    lastCollisionEvent: 'none'
+    lastCollisionEvent: 'none',
+    lastRewardEvent: '',
+    rewardEventTtl: 0,
+    lastHazardX: -Infinity
   };
 }
 
 export function updateWorld(world, player, spawner, config, dt) {
   if (world.gameOver) return;
 
-  world.speed = Math.min(world.maxSpeed, world.speed + world.speedRamp * dt);
+  updateSpeed(world, config, dt);
   const scroll = world.speed * dt;
   world.cameraX += scroll;
   world.distance += scroll * config.world.distanceScale;
+
+  if (world.rewardEventTtl > 0) {
+    world.rewardEventTtl = Math.max(0, world.rewardEventTtl - dt);
+    if (world.rewardEventTtl <= 0) {
+      world.lastRewardEvent = '';
+    }
+  }
 
   if (world.distance >= world.targetDistance) {
     world.gameOver = true;
@@ -98,8 +147,9 @@ export function updateWorld(world, player, spawner, config, dt) {
       }
 
       if (e.kind === 'crystal') {
-        player.crystals += 1;
+        handleCrystalPickup(player, world, config);
         world.lastCollisionEvent = 'crystal-pickup';
+        world.rewardEventTtl = 1.8;
         world.entities.splice(i, 1);
       }
 
