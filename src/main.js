@@ -84,6 +84,8 @@ function resetRun(state, config, { autoStart = false } = {}) {
   state.world.gameOver = false;
   state.world.gameWon = false;
   state.world.started = autoStart;
+  state.world.newBestDistance = false;
+  state.world.newBestCrystals = false;
   state.world.lastCollisionEvent = 'none';
 
   const freshPlayer = createPlayer(config, state.world.groundY);

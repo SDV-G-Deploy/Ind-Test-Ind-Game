@@ -13,6 +13,12 @@ export function createHud() {
           })()
         : '';
 
+      const recordsText = ` · Best ${world.bestDistance}m / ${world.bestCrystals} crystals`;
+
+      const newRecordText = world.gameOver && (world.newBestDistance || world.newBestCrystals)
+        ? ` · NEW RECORD${world.newBestDistance && world.newBestCrystals ? ' (distance + crystals)' : world.newBestDistance ? ' (distance)' : ' (crystals)'}`
+        : '';
+
       const stateText = world.gameOver
         ? world.gameWon
           ? ` · VICTORY! Press JUMP to play again`
@@ -27,7 +33,7 @@ export function createHud() {
         player.fatigue
       )} · Crystals ${player.crystals} · Distance ${Math.floor(world.distance)} · ${Math.round(
         loopMs
-      )}ms${modeText}${objectiveText}${missionText}${stateText}${tutorialText}`;
+      )}ms${modeText}${objectiveText}${missionText}${recordsText}${stateText}${newRecordText}${tutorialText}`;
     }
   };
 }

@@ -1,6 +1,24 @@
 import { intersectsAABB } from './collision.js';
 import { applyHitToPlayer } from './player.js';
 
+function commitRecords(world, player) {
+  const distance = Math.floor(world.distance);
+  const crystals = Math.floor(player.crystals);
+
+  world.newBestDistance = distance > world.bestDistance;
+  world.newBestCrystals = crystals > world.bestCrystals;
+
+  if (world.newBestDistance) {
+    world.bestDistance = distance;
+    localStorage.setItem('runner.bestDistance', String(distance));
+  }
+
+  if (world.newBestCrystals) {
+    world.bestCrystals = crystals;
+    localStorage.setItem('runner.bestCrystals', String(crystals));
+  }
+}
+
 export function createWorld(config, canvas) {
   return {
     gravity: config.world.gravity,
@@ -18,6 +36,9 @@ export function createWorld(config, canvas) {
     started: false,
     targetDistance: Number(config.world.winDistance || 250),
     bestDistance: Number(localStorage.getItem('runner.bestDistance') || 0),
+    bestCrystals: Number(localStorage.getItem('runner.bestCrystals') || 0),
+    newBestDistance: false,
+    newBestCrystals: false,
     lastCollisionEvent: 'none'
   };
 }
@@ -33,8 +54,7 @@ export function updateWorld(world, player, spawner, config, dt) {
   if (world.distance >= world.targetDistance) {
     world.gameOver = true;
     world.gameWon = true;
-    world.bestDistance = Math.max(world.bestDistance, Math.floor(world.distance));
-    localStorage.setItem('runner.bestDistance', String(world.bestDistance));
+    commitRecords(world, player);
     world.lastCollisionEvent = 'victory';
     return;
   }
@@ -69,8 +89,7 @@ export function updateWorld(world, player, spawner, config, dt) {
         }
         if (dead) {
           world.gameOver = true;
-          world.bestDistance = Math.max(world.bestDistance, Math.floor(world.distance));
-          localStorage.setItem('runner.bestDistance', String(world.bestDistance));
+          commitRecords(world, player);
         }
       }
 
